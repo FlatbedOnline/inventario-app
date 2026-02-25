@@ -1,0 +1,31 @@
+CREATE DATABASE inventory;
+
+
+-- Maquinas, ainda não decidi se irei criar tabela separada para noteboooks e periféricos.
+CREATE TABLE machine(
+  id SERIAL PRIMARY KEY,
+  machine_name VARCHAR(50),
+  model VARCHAR(100),
+  serial_number VARCHAR(100) UNIQUE,
+  status BOOLEAN DEFAULT true
+);
+
+CREATE TABLE employee(
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100),
+  department_id INTEGER REFERENCES department(id)
+);
+
+CREATE TABLE department(
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100)
+);
+
+
+CREATE TABLE assignment(
+	id SERIAL PRIMARY KEY,
+	date_in DATE,	--Data do empréstimo
+	date_out DATE,	--Data da devolução
+	employee_id INTEGER REFERENCES employee(id),
+	machine_id INTEGER REFERENCES machine(id)
+);
