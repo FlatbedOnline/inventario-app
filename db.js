@@ -9,7 +9,6 @@ const pool = new Pool({
 	database: 'inventory',
 })
 
-
 //INSERT FUNCTIONS
 export async function insertNotebook(data){
 	let {
@@ -46,8 +45,11 @@ export async function insertMonitor(data){
 		status
 	} = data
 
+	if(!identifier || model)
+		throw new Error('Identifier and model are required.')
+
 	let result = await pool.query(
-		'INSERT INTO monitor (monitor_name, price, status) VALUES ($1, $2, $3) RETURNING *', [model, price, status])
+		'INSERT INTO monitor (identifier, model, price, status) VALUES ($1, $2, $3, $4) RETURNING *', [identifier, model, price, status])
 
 	return result.rows[0]
 }
@@ -61,9 +63,22 @@ export async function insertDepartment(name){
 }
 
 //INSERT EMPLOYEE
-export async function insertEmployee(name, departmentName){
+export async function insertEmployee(data){
+
+	let {
+		identifier,
+		name,
+		departmentName
+	} = data
+
+	if(!identifier || !name)
+		throw new Error('Identifier or name not specified.')
+
 	let dep = await pool.query(
 		'SELECT id FROM department WHERE name = $1', [departmentName])
+	
+	if (!departmentName)
+		throw new Error(`${departmentName} not found.`)
 
 	if(dep.rows.length === 0)
 		throw new Error(`Department ${departmentName} not found.`)
@@ -71,7 +86,7 @@ export async function insertEmployee(name, departmentName){
 	let depResult = dep.rows[0].id
 
 	let result = await pool.query(
-		'INSERT INTO employee(name, department_id) VALUES ($1, $2) RETURNING *', [name, depResult])
+		'INSERT INTO employee(identifier, name, department_id) VALUES ($1, $2, $3) RETURNING *', [identifier, name, depResult])
 
 	return result.rows[0]
 }
@@ -80,11 +95,14 @@ export async function insertEmployee(name, departmentName){
 export async function insertAssignment(data) {
 
 	let {
-		date_in, //DEFAULT CURRENT_DATE
 		employee, //NOT NULL
 		identifier_not,
-		identifier_mon
+		identifier_mon,
+		date_in //DEFAULT CURRENT_DATE
 	} = data
+	
+	if(!employee)
+		throw new Error('employee cannot be undefined')
 
 	let employee_search = await pool.query(
 		'SELECT id FROM employee WHERE name=$1', [employee])
@@ -95,7 +113,7 @@ export async function insertAssignment(data) {
 	let employee_id = employee_search.rows[0].id
 
 	if (!identifier_not && !identifier_mon) {
-	throw new Error("No asset provided")
+		throw new Error("No asset provided")
 	}
 
 	let notebook_id = null
@@ -120,18 +138,11 @@ export async function insertAssignment(data) {
 			throw new Error(`${identifier_mon} not found`)
 
 		monitor_id = asset.rows[0].id
-
 		}
 
 	let result = await pool.query('INSERT INTO assignment(employee_id, notebook_id, monitor_id) VALUES($1, $2, $3) RETURNING *', [employee_id, notebook_id, monitor_id])
 
 	return result.rows[0]
 }
-
-
-	
-
-
-		
 
 

@@ -27,6 +27,7 @@ CREATE TABLE department(
 
 CREATE TABLE employee(
 	id SERIAL PRIMARY KEY,
+	identifier VARCHAR(10) NOT NULL,
 	name VARCHAR(100) NOT NULL,
 	department_id INTEGER REFERENCES department(id)
 );
