@@ -1,5 +1,5 @@
 CREATE DATABASE inventory;
-
+\c inventory
 
 CREATE TABLE notebook(
 	id SERIAL PRIMARY KEY,
@@ -9,6 +9,8 @@ CREATE TABLE notebook(
 	price NUMERIC(10, 2),
 	status BOOLEAN DEFAULT true --true: está ativo / false: está inativo.
 );
+
+
 
 CREATE TABLE monitor(
 	id SERIAL PRIMARY KEY,
@@ -41,3 +43,11 @@ CREATE TABLE assignment(
 	monitor_id INTEGER REFERENCES monitor(id),
 	CHECK(notebook_id IS NOT NULL OR monitor_id IS NOT NULL)
 );
+
+CREATE UNIQUE INDEX unique_notebook_active
+ON assignment (notebook_id)
+WHERE date_out IS NULL;
+
+CREATE UNIQUE INDEX unique_monitor_active
+ON assignment (monitor_id)
+WHERE date_out IS NULL;

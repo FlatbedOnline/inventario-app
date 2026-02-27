@@ -5,11 +5,13 @@ const pool = new Pool({
 	user: 'postgres',
 	password: process.env.PW_USER,
 	host: 'localhost',
-	port: 5334,
-	database: 'inventory',
+	port: 5432,
+	database: 'inventory'
 })
 
-//INSERT FUNCTIONS
+/*------------------------------ INSERT COMMANDS ----------------------------*/
+
+//INSERT NOTEBOOK
 export async function insertNotebook(data){
 	let {
 		identifier,
@@ -45,11 +47,11 @@ export async function insertMonitor(data){
 		status
 	} = data
 
-	if(!identifier || model)
+	if(!identifier || !model)
 		throw new Error('Identifier and model are required.')
 
 	let result = await pool.query(
-		'INSERT INTO monitor (identifier, model, price, status) VALUES ($1, $2, $3, $4) RETURNING *', [identifier, model, price, status])
+		'INSERT INTO monitor (identifier, model, price, status) VALUES ($1, $2, $3, $4) RETURNING *', [identifier, model, price])
 
 	return result.rows[0]
 }
@@ -71,22 +73,20 @@ export async function insertEmployee(data){
 		departmentName
 	} = data
 
-	if(!identifier || !name)
+	if(!identifier || !name || !departmentName)
 		throw new Error('Identifier or name not specified.')
 
 	let dep = await pool.query(
 		'SELECT id FROM department WHERE name = $1', [departmentName])
 	
-	if (!departmentName)
-		throw new Error(`${departmentName} not found.`)
 
 	if(dep.rows.length === 0)
 		throw new Error(`Department ${departmentName} not found.`)
 		
-	let depResult = dep.rows[0].id
+	dep = dep.rows[0].id
 
 	let result = await pool.query(
-		'INSERT INTO employee(identifier, name, department_id) VALUES ($1, $2, $3) RETURNING *', [identifier, name, depResult])
+		'INSERT INTO employee(identifier, name, department_id) VALUES ($1, $2, $3) RETURNING *', [identifier, name, dep])
 
 	return result.rows[0]
 }
@@ -139,10 +139,121 @@ export async function insertAssignment(data) {
 
 		monitor_id = asset.rows[0].id
 		}
+	
+	let result = null
 
-	let result = await pool.query('INSERT INTO assignment(employee_id, notebook_id, monitor_id) VALUES($1, $2, $3) RETURNING *', [employee_id, notebook_id, monitor_id])
+	if(!date_in){
+	result = await pool.query('INSERT INTO assignment(employee_id, notebook_id, monitor_id) VALUES($1, $2, $3) RETURNING *', [employee_id, notebook_id, monitor_id])
+	
+	}else {
+	result = await pool.query('INSERT INTO assignment(employee_id, notebook_id, monitor_id, date_in) VALUES($1, $2, $3, $4) RETURNING *', [employee_id, notebook_id, monitor_id, date_in])
+	
+	}
 
 	return result.rows[0]
 }
 
+//FINISH ASSIGNMENT
+export async function finishAssignment(data){
+	let {
+		employee,
+		date_out
+	} = data
+	
+	if(!employee || !date_out)
+		throw new Error('Neither employee or date_out can be undefined.')
 
+	let employee_id = await pool.query('SELECT id FROM employee WHERE name=$1', [employee])
+
+	if(employee_id.rows.length === 0)
+		throw new Error(`${employee} not found.`)
+
+	employee_id = employee_id.rows[0].id
+
+	let result = await pool.query('UPDATE assignment SET date_out = $1 WHERE employee_id = $2 AND date_out IS NULL RETURNING *', [date_out, employee_id])
+	
+	if(result.rows.length === 0)
+		throw new Error('Employee has no active assignment.')
+
+	return result.rows[0]
+}
+
+/*------------------------------- SELECT COMMANDS ------------------------------*/
+
+//Show all assignments
+export async function showAll(){
+	let result = await pool.query('SELECT a.id, e.name, d.name AS department, n.identifier AS notebook, m.identifier AS monitor, a.date_in, a.date_out FROM assignment a JOIN employee e ON a.employee_id = e.id JOIN department d ON e.department_id = d.id LEFT JOIN notebook n ON a.notebook_id = n.id LEFT JOIN monitor m ON a.monitor_id = m.id;')
+
+	return result.rows
+}
+
+//Show all employees
+export async function showAllEmployees(){
+	let result = await pool.query('SELECT e.name AS employee, d.name AS department FROM employee e JOIN department d ON e.department_id = d.id')
+
+	return result.rows
+}
+
+//Show all computers
+export async function showAllNotebooks(){
+	let result = await pool.query('SELECT * FROM notebook')
+
+	return result.rows
+}
+
+//Show all monitors
+export async function showAllMonitors(){
+	let result = await pool.query('SELECT * FROM monitor')
+
+	return result.rows
+}
+
+/*--------------------------DELETE COMMANDS--------------------------*/
+
+//Delete employee
+export async function deleteEmployee(data){
+	let { name } = data
+	
+	if(!name)
+		throw new Error(`${name} can not be undefined.`)
+
+	let result = await pool.query('DELETE FROM employee WHERE name = $1 RETURNING *', [name])
+
+	return result.rows[0]
+}
+
+//Delete notebook
+export async function deleteNotebook(data){
+	let { identifier } = data
+	
+	if(!identifier)
+		throw new Error(`${identifier} can not be undefined.`)
+
+	let result = await pool.query('DELETE FROM notebook WHERE identifier = $1 RETURNING *', [identifier])
+
+	return result.rows[0]
+}
+
+//Delete monitor
+export async function deleteMonitor(data){
+	let { identifier } = data
+
+	if(!identifier)
+		throw new Error(`${identifier} can not be undefined.`)
+	
+	let result = await pool.query('DELETE FROM monitor WHERE identifier = $1 RETURNING *', [identifier])
+
+	return result.rows[0]
+}
+
+//Delete assignment
+export async function deleteAssign(data){
+	let { id } = data
+
+	if (!id)
+		throw new Error(`${id} can not be undefined.`)
+
+	let result = await pool.query('DELETE FROM assignment WHERE id=$1 RETURNING *', [id])
+
+	return result.rows[0]
+}
