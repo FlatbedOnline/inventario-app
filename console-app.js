@@ -26,6 +26,11 @@ const menu = await select({
 			value: 'employee',
 			description: 'Manage employees.'
 		},
+    {
+      name: 'Departments',
+      value: 'department',
+      description: 'Manage departments'
+    },
 		{
 			name: 'Assets',
 			value: 'assets',
@@ -80,38 +85,95 @@ if (menu == 'assignments'){
 if(menu == 'employee'){
 		const menu_employee = await select({
 		message: 'Choose an option',
-		choices: [{
-			name: 'Show all employees',
-			value: 'showAllEmployees'
-		},
-		{
-			name: 'Register an employee',
-			value: 'insertEmployee',
-			description: 'Delete a specific assignment'
-		},
-		{
-			name: 'Delete an employee',
-			value: 'deleteEmployee'
-		},
+		choices: [
+      { 
+        name: 'Search employees',
+        value: 'searchEmployee'
+      },
+      {
+			  name: 'Show all employees',
+        value: 'showAllEmployees'
+      },
+      {
+			  name: 'Register an employee',
+			  value: 'insertEmployee',
+			  description: 'Delete a specific assignment'
+      },
+      {
+			  name: 'Delete an employee',
+			  value: 'deleteEmployee'
+      },
 		new Separator() ]
 	})
 	
 	switch(menu_employee) {
 
 		case 'showAllEmployees':
+
 			console.log(await db.showAllEmployees())
 			break;
-		case 'deleteAssign':
-	
+
+		case 'searchEmployee':
+
+      let name = await input({message: `Enter employee's name: `,});
+      console.log(await db.searchEmployee({ name }))
+    
 			break;
-		case 'insertAssignment':
+
+		case 'insertEmployee':
+
+      let data = {} 
+
+      data.identifier = await input({message:`Enter employee's identifier: `});
+      data.name = await input({message:`Enter employee's name: `});
+      data.departmentName = await input({message:`Enter departmentName: `});
+
+      await db.insertEmployee(data);
 
 			break;
-		case 'finishAssignment':
 
-			break; }
+		case 'deleteEmployee':
+      
+      let identifier = await input({message: `Insert employee's identifier: `});
+      
+      await db.deleteEmployee({identifier})
 
-	
+			break; 
+  }
+
+}
+
+if(menu == 'department'){
+  
+  const menu_department = await select({
+    message: 'Choose an option:',
+    choices:[
+      {
+        name: 'Create department',
+        value: 'insertDepartment'
+      },
+      {
+        name: 'Show departments',
+        value: 'showDepartments'
+      }
+      
+    ]
+  })
+
+  switch (menu_department) {
+    case 'insertDepartment':
+
+      let answer = await input({message: `Insert the department's name: `});
+
+      console.log(await db.insertDepartment(answer));
+      break;
+
+    case 'showDepartments':
+
+      console.log(await db.showDepartments());
+      break;
+  }
+
 }
 
 //assets handle

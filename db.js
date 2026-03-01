@@ -74,7 +74,7 @@ export async function insertEmployee(data){
 	} = data
 
 	if(!identifier || !name || !departmentName)
-		throw new Error('Identifier or name not specified.')
+		throw new Error('Identifier, department name or name not specified.')
 
 	let dep = await pool.query(
 		'SELECT id FROM department WHERE name = $1', [departmentName])
@@ -182,9 +182,51 @@ export async function finishAssignment(data){
 
 //Show all assignments
 export async function showAll(){
-	let result = await pool.query('SELECT a.id, e.name, d.name AS department, n.identifier AS notebook, m.identifier AS monitor, a.date_in, a.date_out FROM assignment a JOIN employee e ON a.employee_id = e.id JOIN department d ON e.department_id = d.id LEFT JOIN notebook n ON a.notebook_id = n.id LEFT JOIN monitor m ON a.monitor_id = m.id;')
+	let result = await pool.query(
+    `SELECT a.id, e.name AS employee, d.name AS department, n.identifier AS notebook, m.identifier AS monitor, a.date_in, a.date_out 
+    FROM assignment a 
+    JOIN employee e ON a.employee_id = e.id 
+    JOIN department d ON e.department_id = d.id LEFT 
+    JOIN notebook n ON a.notebook_id = n.id 
+    LEFT JOIN monitor m ON a.monitor_id = m.id;`)
 
 	return result.rows
+}
+
+export async function searchAssignment(data){
+  let { name } = data
+  
+  if(!name)
+    throw new Error('Name cannot be undefined.');
+
+  let result = await pool.query(
+    `SELECT a.id, e.name AS employee, d.name AS department, n.identifier AS notebook, m.identifier AS monitor, a.date_in, a.date_out
+    FROM assignment a 
+    JOIN employee e ON a.employee_id = e.id
+    JOIN department d ON e.department_id = d.id 
+    LEFT JOIN notebook n ON a.notebook_id = n.id 
+    LEFT JOIN monitor m ON a.monitor_id = m.id
+    WHERE e.name ILIKE $1;`,
+    [`%${name}%`])
+
+  return result.rows
+}
+
+//Search employee
+export async function searchEmployee(data) {
+  let { name } = data
+  
+  if(!name)
+    throw new Error(`Name cannot be undefined.`)
+  
+  let result = await pool.query(
+    'SELECT e.name AS employee, d.name AS department FROM employee e JOIN department d ON e.department_id = d.id WHERE e.name ILIKE $1', 
+    [`%${name}%`])
+
+  if(result.rows.length === 0)
+    throw new Error(`No matches for ${name} found.`)
+  
+  return result.rows
 }
 
 //Show all employees
@@ -194,6 +236,27 @@ export async function showAllEmployees(){
 	return result.rows
 }
 
+//Search computers 
+export async function searchComputers(data){
+  let {identifier, model} = data
+
+  if(!identifier && !model)
+    throw new Error('Name and identifier cannot be undefined.')
+
+  if(identifier && model)
+    throw new Error('You cannot use both.') //To Do: criar método de consulta binaria
+  
+  let result = null
+
+  if (identifier && !model)
+    result = await pool.query('SELECT * FROM notebook WHERE identifier = $1', [identifier]);
+  
+  if (model && !identifier)
+    result = await pool.query('SELECT * FROM notebook WHERE model ILIKE $1', [`%${model}%`]);
+
+  return result.rows
+}
+
 //Show all computers
 export async function showAllNotebooks(){
 	let result = await pool.query('SELECT * FROM notebook')
@@ -201,23 +264,53 @@ export async function showAllNotebooks(){
 	return result.rows
 }
 
+//Search monitors 
+export async function searchMonitors(data){
+    let {identifier, model} = data
+
+  if(!identifier && !model)
+    throw new Error('Name and identifier cannot be undefined.')
+
+  if(identifier && model)
+    throw new Error('You cannot use both.') //To Do: criar método de consulta binaria
+  
+  let result = null
+
+  if (identifier && !model)
+    result = await pool.query('SELECT * FROM monitor WHERE identifier = $1', [identifier]);
+  
+  if (model && !identifier)
+    result = await pool.query('SELECT * FROM monitor WHERE model ILIKE $1', [`%${model}%`]);
+
+  return result.rows
+}
+
 //Show all monitors
 export async function showAllMonitors(){
 	let result = await pool.query('SELECT * FROM monitor')
+  
+  return result.rows
+}
+//Show all departments
+export async function showDepartments() {
+
+  let result = await pool.query('SELECT * FROM department')
 
 	return result.rows
 }
 
 /*--------------------------DELETE COMMANDS--------------------------*/
 
+//You SHOULDN'T be able to delete stuff without the id or identifier. Never allow delete commands without these. 
+
 //Delete employee
 export async function deleteEmployee(data){
-	let { name } = data
+	let { identifier } = data
 	
 	if(!name)
-		throw new Error(`${name} can not be undefined.`)
+		throw new Error(`${identifier} can not be undefined.`)
 
-	let result = await pool.query('DELETE FROM employee WHERE name = $1 RETURNING *', [name])
+	let result = await pool.query('DELETE FROM employee WHERE identifier = $1 RETURNING *', [identifier])
 
 	return result.rows[0]
 }
