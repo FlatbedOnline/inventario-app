@@ -1,7 +1,6 @@
-import * as db from './db.js'
+import * as db from '../database/db.js'
 import fs from 'fs/promises';
 import { select, Separator, input } from '@inquirer/prompts';
-
 
 async function showLogo() {
     try {
