@@ -3,7 +3,7 @@ CREATE DATABASE inventory;
 
 CREATE TABLE notebook(
 	id SERIAL PRIMARY KEY,
-	identifier VARCHAR(10) NOT NULL,
+	identifier VARCHAR(10) UNIQUE NOT NULL,
 	serial_number VARCHAR(100) UNIQUE NOT NULL,
 	model VARCHAR(50) NOT NULL,
 	price NUMERIC(10, 2),
@@ -14,7 +14,7 @@ CREATE TABLE notebook(
 
 CREATE TABLE monitor(
 	id SERIAL PRIMARY KEY,
-	identifier VARCHAR(10) NOT NULL,
+	identifier VARCHAR(10) UNIQUE NOT NULL,
 	model VARCHAR(50) NOT NULL,
 	price NUMERIC(10, 2),
 	status BOOLEAN DEFAULT true
@@ -29,7 +29,7 @@ CREATE TABLE department(
 
 CREATE TABLE employee(
 	id SERIAL PRIMARY KEY,
-	identifier VARCHAR(10) NOT NULL,
+	identifier VARCHAR(10) UNIQUE NOT NULL,
 	name VARCHAR(100) NOT NULL,
 	department_id INTEGER REFERENCES department(id)
 );

@@ -68,16 +68,62 @@ if (menu == 'assignments'){
 			console.log(await db.showAll())
 			break;
 		case 'deleteAssign':
-	
+      let id = await input({message: `Insert assignment's id`});
+
+      console.log(await db.deleteAssign({ id }))
 			break;
+
 		case 'insertAssignment':
 
+      let data = {}
+
+      data.employee_identifier = await input({message: `Insert employee's identifier: `});
+      
+      let choice = await select({
+        message: `Do you want to assign a notebook?`,
+        choices: [
+          {name: 'yes', value: true},
+          {name: 'no', value: false}
+        ]
+      });
+
+      if(choice)
+        data.identifier_not = await input({message: `Insert notebook's identifier: `});
+
+      choice = await select({
+        message: `Do you want to assign a monitor?`,
+        choices: [
+          {name: 'yes', value: true},
+          {name:'no', value: false}
+        ]
+      });
+
+      if(choice)
+        data.identifier_mon = await input({message: `Insert monito's identifier: `});
+
+      choice = await select({
+        message:`Do you want to assign a date_in different from today?`,
+        choices: [
+          {name: 'yes', value: true},
+          {name: 'no', value: false}
+        ]
+      });
+
+      if(choice)
+        data.date_in = await input({message: `Insert a date_in`})
+
+      console.log(await db.insertAssignment(data))
 			break;
+
 		case 'finishAssignment':
+      let data2 = {}
 
-			break; }
+      data2.employee_identifier = await input({message:`Insert employee's identifier: `});
+      data2.date_out = await input({message: `Insert date_out: `});
 
-	
+      console.log(await db.finishAssignment(data2));
+			break; 
+  }
 }
 
 
@@ -128,7 +174,7 @@ if(menu == 'employee'){
       data.name = await input({message:`Enter employee's name: `});
       data.departmentName = await input({message:`Enter departmentName: `});
 
-      await db.insertEmployee(data);
+      console.log(await db.insertEmployee(data));
 
 			break;
 
@@ -136,7 +182,7 @@ if(menu == 'employee'){
       
       let identifier = await input({message: `Insert employee's identifier: `});
       
-      await db.deleteEmployee({identifier})
+      console.log(await db.deleteEmployee({identifier}));
 
 			break; 
   }
@@ -178,7 +224,7 @@ if(menu == 'department'){
 
 //assets handle
 if(menu == 'assets'){
-	const menu_employee = await select({
+	const menu_assets = await select({
 	message: 'Choose an option',
 	choices: [{
 		name: 'Manage notebooks',
@@ -194,7 +240,7 @@ if(menu == 'assets'){
 	})
 
 	//Notebooks handle
-	if(menu_employee == 'notebooks'){
+	if(menu_assets == 'notebooks'){
 		const menu_notebooks = await select({
 			message: 'Choose an option',
 			choices: [{
@@ -217,15 +263,36 @@ if(menu == 'assets'){
 				console.log(await db.showAllNotebooks())
 				break;
 			case 'insertNotebook':
+        let data = {}
+
+        data.identifier = await input({message: `Insert notebook's identifier: `});
+        data.serial_number = await input({message: `Insert notebook's serial number: `});
+        data.model = await input({message: `Insert notebook's model: `})
+
+        let choice = await select({message: 'Do you have a price?', choices: [{name: 'yes', value: 'yes'},{name: 'no', value: 'no'}] });
+
+        if(choice == 'yes')
+          data.price = parseFloat(await input({message: `Insert price: `}));
+
+        choice = await select({message: 'Select the status', choices: [{name: 'active', value: 'yes'}, {name: 'broke', value: 'no'}] })
+        
+        if(choice == 'no')
+          data.status = false
+
+        console.log(await db.insertNotebook(data));
 
 				break;
-			case 'deleteNotebook':
 
-				break;}
+			case 'deleteNotebook':
+        let identifier = await input({message: `Insert notebook's identifier: `});
+        console.log(await db.deleteNotebook({ identifier }))
+
+				break;
+    }
 	}
 
 	//Monitor handle
-	if(menu_employee == 'monitors'){
+	if(menu_assets == 'monitors'){
 		const menu_monitors = await select({
 			message: 'Choose an option',
 			choices: [{
@@ -248,9 +315,40 @@ if(menu == 'assets'){
 				console.log(await db.showAllMonitors())
 				break;
 			case 'insertMonitor':
+        let data = {}
+
+        data.identifier = await input({message: `Insert identifier: `});
+        data.model = await input ({message: `Insert model: `});
+
+        let choice = await select({
+          message: `Do you have a price?`,
+          choices: [
+            {name: 'yes', value: true},
+            {name: 'no', value: false}
+          ] });
+
+        if(choice)
+          data.price = await parseFloat( await input({message: `Insert Monitor's price: `}) );
+
+        choice = await select({ 
+          message: `Insert the status: `,
+          choices: [
+            {name: 'active', value: true}, 
+            {name: 'broke', value:false}
+          ] });
+
+        if(!choice)
+          data.status = false;
+
+        console.log(await db.insertMonitor(data));
 
 				break;
+
 			case 'deleteMonitor':
+        let identifier = await input({message: `Insert the Monitor's identifier: `})
+
+        console.log(await db.deleteMonitor({ identifier }))
+
 
 				break;}
 

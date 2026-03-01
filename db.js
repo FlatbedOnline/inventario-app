@@ -41,17 +41,22 @@ export async function insertNotebook(data){
 //INSERT MONITOR
 export async function insertMonitor(data){
 	let {
-		identifier,
-		model,
+		identifier, //NOT NULL
+		model, // NOT NULL
 		price,
-		status
+		status// DEFAULT true
 	} = data
 
 	if(!identifier || !model)
 		throw new Error('Identifier and model are required.')
 
-	let result = await pool.query(
-		'INSERT INTO monitor (identifier, model, price, status) VALUES ($1, $2, $3, $4) RETURNING *', [identifier, model, price])
+  let result = null;
+
+    result = await pool.query(
+      `INSERT INTO monitor (identifier, model, price, status) 
+      VALUES ($1, $2, $3, $4) RETURNING *`, 
+      [identifier, model, price, status]);
+
 
 	return result.rows[0]
 }
@@ -95,20 +100,18 @@ export async function insertEmployee(data){
 export async function insertAssignment(data) {
 
 	let {
-		employee, //NOT NULL
+		employee_identifier, //NOT NULL
 		identifier_not,
 		identifier_mon,
 		date_in //DEFAULT CURRENT_DATE
 	} = data
 	
-	if(!employee)
-		throw new Error('employee cannot be undefined')
-
+	
 	let employee_search = await pool.query(
-		'SELECT id FROM employee WHERE name=$1', [employee])
+		'SELECT id FROM employee WHERE identifier=$1', [employee_identifier])
 
 	if (employee_search.rows.length === 0)
-		throw new Error(`${employee} not found`)
+		throw new Error(`${employee_identifier} not found`)
 
 	let employee_id = employee_search.rows[0].id
 
@@ -156,17 +159,17 @@ export async function insertAssignment(data) {
 //FINISH ASSIGNMENT
 export async function finishAssignment(data){
 	let {
-		employee,
+		employee_identifier,
 		date_out
 	} = data
 	
-	if(!employee || !date_out)
+	if(!employee_identifier || !date_out)
 		throw new Error('Neither employee or date_out can be undefined.')
 
-	let employee_id = await pool.query('SELECT id FROM employee WHERE name=$1', [employee])
+	let employee_id = await pool.query('SELECT id FROM employee WHERE identifier=$1', [employee_identifier])
 
 	if(employee_id.rows.length === 0)
-		throw new Error(`${employee} not found.`)
+		throw new Error(`${employee_identifier} not found.`)
 
 	employee_id = employee_id.rows[0].id
 
@@ -183,7 +186,7 @@ export async function finishAssignment(data){
 //Show all assignments
 export async function showAll(){
 	let result = await pool.query(
-    `SELECT a.id, e.name AS employee, d.name AS department, n.identifier AS notebook, m.identifier AS monitor, a.date_in, a.date_out 
+    `SELECT a.id, e.identifier AS employee_identifier, e.name AS employee, d.name AS department, n.identifier AS notebook, m.identifier AS monitor, a.date_in, a.date_out 
     FROM assignment a 
     JOIN employee e ON a.employee_id = e.id 
     JOIN department d ON e.department_id = d.id LEFT 
@@ -200,7 +203,7 @@ export async function searchAssignment(data){
     throw new Error('Name cannot be undefined.');
 
   let result = await pool.query(
-    `SELECT a.id, e.name AS employee, d.name AS department, n.identifier AS notebook, m.identifier AS monitor, a.date_in, a.date_out
+    `SELECT a.id, e.identifier AS employee_identifier, e.name AS employee, d.name AS department, n.identifier AS notebook, m.identifier AS monitor, a.date_in, a.date_out
     FROM assignment a 
     JOIN employee e ON a.employee_id = e.id
     JOIN department d ON e.department_id = d.id 
@@ -220,7 +223,10 @@ export async function searchEmployee(data) {
     throw new Error(`Name cannot be undefined.`)
   
   let result = await pool.query(
-    'SELECT e.name AS employee, d.name AS department FROM employee e JOIN department d ON e.department_id = d.id WHERE e.name ILIKE $1', 
+    `SELECT e.identifier, e.name AS employee, d.name AS department 
+    FROM employee e 
+    JOIN department d ON e.department_id = d.id 
+    WHERE e.name ILIKE $1`, 
     [`%${name}%`])
 
   if(result.rows.length === 0)
@@ -231,7 +237,10 @@ export async function searchEmployee(data) {
 
 //Show all employees
 export async function showAllEmployees(){
-	let result = await pool.query('SELECT e.name AS employee, d.name AS department FROM employee e JOIN department d ON e.department_id = d.id')
+	let result = await pool.query(
+    `SELECT e.identifier, e.name AS employee, d.name AS department 
+    FROM employee e 
+    JOIN department d ON e.department_id = d.id`)
 
 	return result.rows
 }
