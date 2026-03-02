@@ -1,5 +1,38 @@
+<style scoped>
+	#banner {
+		height: 1.5rem;
+		background-color: #1e2124;
+
+	}
+
+</style>
 <template>
-  <h1>{{employees}}</h1>
+	<div class="wrapper">
+		<div class="container" id="banner"> 
+				<div class="item">
+					Identificador
+				</div>
+				<div class="item">
+					Nome
+				</div>
+				<div class="item">
+					Departamento
+				</div>
+
+		</div>
+		<div class="container" v-for="e in employees">
+			<div class="item">
+				{{e.identifier}}
+			</div>
+			<div class="item">
+				{{e.employee}}
+			</div>
+			<div class="item">
+				{{e.department}}
+			</div>
+
+		</div>
+  	</div>
 </template>
 
 <script setup>
