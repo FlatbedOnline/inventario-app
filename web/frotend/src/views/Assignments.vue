@@ -7,7 +7,7 @@
 </style>
 <template>
 	<div class="wrapper">
-  		<div v-for="e in employees" :key="e.id" class="container"id="banner">
+  		<div class="container"id="banner">
 			<div class="identifier">
 				<p>Identificador</p>
 			</div>
@@ -77,7 +77,7 @@
 
   
   onMounted(async () => {
-  const res = await fetch('http://localhost:3000/assignments')
+  const res = await fetch('http://192.168.88.139:3000/assignments')
   employees.value = await res.json()
 
   console.log(employees.value)

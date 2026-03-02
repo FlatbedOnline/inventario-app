@@ -43,7 +43,7 @@
   onMounted(async () => { 
 
   try{
-  const res = await fetch('http://localhost:3000/employees')
+  const res = await fetch('http://192.168.88.139:3000/employees')
   employees.value = await res.json()
   
   console.log(employees.value)
