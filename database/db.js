@@ -185,6 +185,80 @@ export async function finishAssignment(data){
 	return result.rows[0]
 }
 
+//INSERT INSPECTION
+async function insertInspection(data){
+	let {
+		inspector, 
+		date_inspection, 
+		condition, 
+		suitable, 
+		details, 
+		notebook_identifier} = data
+
+	if(!inspector || !date_inspection || condition == 0 || suitable == 0)
+		throw new Error('inspector, date_inspection, condition and suitable cannot be null')
+
+	let notebook_id = await pool.query(
+		`SELECT id FROM notebook WHERE identifier = $1`,
+	[notebook_identifier])
+
+	if(notebook_id.rows.length === 0)
+		throw new Error(`${notebook_identifier} not found`)
+
+	notebook_id = notebook_id.rows[0].id
+
+	condition = Number(data.condition)
+	suitable = Number(data.suitable)
+	
+	let result = await pool.query(`
+		INSERT INTO inspection
+		(inspector, condition, suitable, details, notebook_id)
+		VALUES($1, $2, $3, $4, $5)
+		RETURNING *`,
+		[inspector, condition, suitable, details, notebook_id]
+	)
+	
+	return result.rows[0]
+
+}
+
+//INSERT NUMBER
+export async function insertNumero(data){
+	let {
+		phone_number,
+		identifier,
+		owner,
+		price,
+		status } = data
+
+	if(!phone_number || !owner || !identifier)
+		throw new Error('phone number, owner and identifier cannot be undefined')
+	
+	let result = await pool.query(
+		`INSERT INTO televisor(phone_number, identifier, owner, price, status)
+		 VALUES($1, $2, $3, $4, $5) RETURNING *`, [phone_number, identifier, owner, price ?? null, status ?? true])
+	
+	
+	return result.rows[0]
+}
+
+//INSERT TELEVISOR
+export async function insertTelevisor(data){
+	let {
+		identifier, model, price, status
+	} = data
+
+	if(!identifier || !model)
+		throw new Error('identifier or model cannot be undefined')
+	
+	let result = await pool.query(
+		`INSERT INTO televisor(identifier, model, price, status)
+		 VALUES($1, $2, $3, $4) RETURNING *`,
+		[identifier, model, price ?? null, status ?? true])
+
+	return result.rows[0]
+}
+
 /*------------------------------- SELECT COMMANDS ------------------------------*/
 
 //Show all assignments
@@ -307,7 +381,21 @@ export async function showAllMonitors(){
 //Show all departments
 export async function showDepartments() {
 
-  let result = await pool.query('SELECT * FROM department')
+  	let result = await pool.query('SELECT * FROM department')
+
+	return result.rows
+}
+
+//Show all Televisors
+export async function showTelevisors(){
+	let result = await pool.query('SELECT * FROM televisor')
+
+	return result.rows
+}
+
+//Show all phone numbers
+export async function showNumeros(){
+	let result = await pool.query('SELECT * FROM numero')
 
 	return result.rows
 }

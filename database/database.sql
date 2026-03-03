@@ -7,7 +7,8 @@ CREATE TABLE notebook(
 	serial_number VARCHAR(100) UNIQUE NOT NULL,
 	model VARCHAR(50) NOT NULL,
 	price NUMERIC(10, 2),
-	status BOOLEAN DEFAULT true --true: está ativo / false: está inativo.
+	details TEXT,
+	status BOOLEAN NOT NULL DEFAULT true --true: está ativo / false: está inativo.
 );
 
 
@@ -17,7 +18,24 @@ CREATE TABLE monitor(
 	identifier VARCHAR(10) UNIQUE NOT NULL,
 	model VARCHAR(50) NOT NULL,
 	price NUMERIC(10, 2),
-	status BOOLEAN DEFAULT true
+	status BOOLEAN NOT NULL DEFAULT true
+);
+
+CREATE TABLE televisor(
+	id SERIAL PRIMARY KEY,
+	identifier VARCHAR(10) UNIQUE NOT NULL,
+	model VARCHAR(50) NOT NULL,
+	price NUMERIC (10, 2),
+	status BOOLEAN NOT NULL DEFAULT true
+);
+
+CREATE TABLE numero(
+	id SERIAL PRIMARY KEY,
+	identifier VARCHAR(10) UNIQUE NOT NULL,
+	phone_number VARCHAR(20) NOT NULL,
+	owner VARCHAR(50) NOT NULL,
+	price NUMERIC(10, 2),
+	status BOOLEAN NOT NULL DEFAULT true
 );
 
 ----------------------------------------------------------------------
@@ -42,6 +60,16 @@ CREATE TABLE assignment(
 	notebook_id INTEGER REFERENCES notebook(id),
 	monitor_id INTEGER REFERENCES monitor(id),
 	CHECK(notebook_id IS NOT NULL OR monitor_id IS NOT NULL)
+);
+
+CREATE TABLE inspection(
+	id SERIAL PRIMARY KEY,
+	inspector VARCHAR(10),
+	date_inspection DATE DEFAULT CURRENT_DATE NOT NULL,
+	condition INTEGER CHECK(BETWEEN 1 AND 10) NOT NULL, --condição do computador
+	suitable INTEGER CHECK(suitable IN (1,2,3)) NOT NULL,--para qual departamento esse computador serve. 1: emissão, 2: suporte, 3: dev
+	details TEXT,
+	notebook_id INTEGER REFERENCES notebook(id)
 );
 
 CREATE UNIQUE INDEX unique_notebook_active

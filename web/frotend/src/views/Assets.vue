@@ -109,8 +109,8 @@
 
 <script setup>
 	import {onMounted, ref} from 'vue'
-	import dotenv from 'dotenv'
 
+	const api = import.meta.env.VITE_API_URL
 	const notebook = ref([])
 	const monitor = ref([])
 	const result = ref(0)
@@ -134,13 +134,15 @@
 	onMounted(async () => {
 		
 		console.log("teste")
-		console.log("debug", process.env.ADDRESS_USER)
+		console.log("debug", api)
 
-		const res = await fetch(`http://${process.env.ADDRESS_USER}/notebook`)
+		const res = await fetch(`http://${api}/notebook`)
+		console.log("Notebook:", api)
 		notebook.value = await res.json()
 		console.log(notebook.value)
 
-		const res2 = await fetch(`http://${process.env.ADRESS_USER}/monitor`)
+		const res2 = await fetch(`http://${api}/monitor`)
+		console.log(api)
 		monitor.value = await res2.json()
 		console.log(monitor.value)
 

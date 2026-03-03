@@ -235,6 +235,11 @@ if(menu == 'assets'){
 		value: 'monitors',
 		description: 'Insert, update and delete monitors.'
 	},
+	{
+		name: 'Manage TVs',
+		value: 'televisors',
+		description 'Insert, update or delete a TV.'
+	},
 	new Separator() ]
 	})
 
@@ -352,6 +357,56 @@ if(menu == 'assets'){
 				break;}
 
 	}
+
+	//televisor handle
+	if(menu_assets === 'televisors'){
+		let choice = await select({
+			message: `Insert an option:`,
+			choices: 
+			[
+				{
+					name: 'Show all TVs',
+					value: 'showTvs'
+				},
+				{
+					name: 'Insert a TV',
+					value: 'insertTv'
+				},
+				{
+					name: 'delete a TV',
+					value: 'deleteTv'
+				}
+			]
+
+	})
+		switch(choice){
+			case 'showTvs':
+
+				break;
+			case 'insertTv':
+
+				data = {identifier, model, price, status}
+
+				data.identifier = await input(
+					{message: `Create an identifier:`})
+				if(data.identifier == null)
+					throw new Error('identifier cannot be null')
+
+				data.model = await input({message: `Insert Tv's model`})
+
+				if(data.model == null)
+					throw new Error('Model cannot be null')
+
+				//to do terminar isso e incluir visualizar televisores e numeros + todas as coisas relacionadas
+
+
+				break;
+			case 'deleteTv':
+
+				break;
+		}
+
+		
 
 }
 
