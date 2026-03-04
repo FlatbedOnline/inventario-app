@@ -22,6 +22,7 @@ export async function insertNotebook(data){
 		serial_number,
 		model,
 		price = null,
+		details,
 		status } = data
 
 	if (!identifier || !serial_number || !model)
@@ -29,15 +30,15 @@ export async function insertNotebook(data){
 	
 	if (status === undefined){
 	let result = await pool.query(
-		'INSERT INTO notebook (identifier, serial_number, model, price) VALUES ($1, $2, $3, $4) RETURNING *',
-		[identifier, serial_number, model, price])
+		'INSERT INTO notebook (identifier, serial_number, model, price, details) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+		[identifier, serial_number, model, price, details])
 	
 	return result.rows[0]
 	}
 	
 	let result = await pool.query(
-		'INSERT INTO notebook (identifier, serial_number, model, price, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-		[identifier, serial_number, model, price, status])
+		'INSERT INTO notebook (identifier, serial_number, model, price, details, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+		[identifier, serial_number, model, price, details, status])
 	
 	return result.rows[0]
 }
@@ -189,14 +190,13 @@ export async function finishAssignment(data){
 async function insertInspection(data){
 	let {
 		inspector, 
-		date_inspection, 
-		condition, 
-		suitable, 
+		condition, //NOT NULL (number between 1 in 10)
+		suitable, //NOT NULL (between 1 and 3)
 		details, 
 		notebook_identifier} = data
 
-	if(!inspector || !date_inspection || condition == 0 || suitable == 0)
-		throw new Error('inspector, date_inspection, condition and suitable cannot be null')
+	if(!inspector || condition == 0 || suitable == 0)
+		throw new Error('inspector, condition and suitable cannot be null')
 
 	let notebook_id = await pool.query(
 		`SELECT id FROM notebook WHERE identifier = $1`,

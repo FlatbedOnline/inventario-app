@@ -18,6 +18,10 @@
 		background-color: green;
 	}
 
+	#details{
+		white-space: pre-wrap;
+	}
+
 	.identifier{
 		color: #FFFFFF;
 	}
@@ -36,7 +40,8 @@
 </style>
 
 <template>
-	<div class="wrapper">
+<div class="wrapper">
+	<div class="section1">
 	<nav class="ContentSelection"> 
 		<button @click="handle('notebook')">Notebooks</button> 
 		<button @click="handle('monitor')">Monitores</button>
@@ -52,23 +57,25 @@
 			<div>Serial Number</div>
 			<div>Status</div>
 			<div>Preço unitário</div>
+			<div> ... </div>
 		</div>
 	
 	<div v-for="n in notebook" :key="n.id" class="container">
-		<div class="identifier"> {{n.identifier}} </div>
-		<div> {{n.model}} </div>
-		<div> {{n.serial_number}} </div>
+		<div class="identifier">{{n.identifier}}</div>
+		<div>{{n.model}}</div>
+		<div>{{n.serial_number}}</div>
 		<div v-if="n.status" class="funcionando">Funcionando</div>
 		<div v-if="!n.status" class="quebrado">Quebrado</div>
 		<div class="price">{{n.price}}R$</div>
+		<div @click="details = n.details; console.log(details)"><a>More...</a></div>
 	</div>
 
 	<div class="container">
-		<div>Total de notebooks: {{totalnotebook}} </div>	
-		<div class="quebrados">Notebooks Quebrados: {{notebooksquebrados}}</div>
-		<div class="funcionando">Notebooks Funcionando: {{notebooksfuncionando}}</div>
+		<div>Total de notebooks: {{stats.not.total}} </div>	
+		<div class="quebrados">Notebooks Quebrados: {{stats.not.quebrados}}</div>
+		<div class="funcionando">Notebooks Funcionando: {{stats.not.funcionando}}</div>
 		<div>|</div>
-	<div class="price">Valor total: {{result}} R$</div>
+	<div class="price">Valor total: {{stats.not.valor}} R$</div>
 
 	</div>
 
@@ -91,40 +98,80 @@
 		</div>
 		
 		<div class="container" id="price">
-			<div>Total de Monitores: {{totalmonitor}} </div>	
-			<div class="quebrados">Monitores quebrados: {{monitoresquebrados}}</div>
-			<div class="funcionando">Monitores funcionando: {{monitoresfuncionando}}</div>
+			<div>Total de Monitores: {{stats.mon.total}} </div>	
+			<div class="quebrados">Monitores quebrados: {{stats.mon.quebrados}}</div>
+			<div class="funcionando">Monitores funcionando: {{stats.mon.funcionando}}</div>
 			<div> | </div>
-			<div id="text">Valor total: {{result2}} R$ </div>
+			<div id="text">Valor total: {{stats.mon.valor}} R$ </div>
 
 
 		</div>
 	
 	</div>
-		<div v-if ="button == 'televisor'" class="container"> placeholder para televisores. </div>
-		<div v-if ="button == 'numero'" class="container"> placeholder para numeros. </div>
+		<div v-if ="button == 'televisor'" class="container">placeholder para televisores.</div>
+		<div v-if ="button == 'numero'" class="container">placeholder para numeros.</div>
 	</div>
+
+	<div class="section2">
+		<h1>Detalhes:</h1>
+		<section>
+			<div id="details">
+				<p>{{details}}</p>
+			</div>
+		</section>
+		<h1>Avaliações:</h1>
+		<section>
+			<div>	
+				<p>Condição: Sem avaliações recentes.</p>
+				<p>Departamento ideal: Sem avaliações recentes.</p>
+			</div>
+		</section>
+	</div>
+</div>
 </template>
 
 
 <script setup>
-	import {onMounted, ref} from 'vue'
+	import {onMounted, ref, computed} from 'vue'
 
 	const api = import.meta.env.VITE_API_URL
 	const notebook = ref([])
 	const monitor = ref([])
-	const result = ref(0)
-	const result2 = ref(0)
-	const totalnotebook = ref(0)
-	const totalmonitor = ref(0)
-
-	const notebooksquebrados = ref(0)
-	const notebooksfuncionando = ref(0)
-
-	const monitoresquebrados = ref(0)
-	const monitoresfuncionando = ref(0)
+	const televisor = ref([])
+	const numero = ref([])
+	const details = ref()
+	
+	const stats = computed(() => ({
+		not: Loop(notebook.value),
+		mon: Loop(monitor.value),
+		tv: Loop(televisor.value)
+	}))
 	
 	const button = ref()
+
+	function Loop(res){
+
+	const metadata = {
+		quebrados: 0,
+		funcionando: 0,
+		valor: 0,
+		total: 0
+	}
+
+	for (const n in res){
+		metadata.valor += Number(res[n].price)
+		metadata.total++
+		if(res[n].status){
+			metadata.funcionando++
+		}else{
+			metadata.quebrados++
+		}
+
+	}
+
+	return metadata
+} 
+
 	
 	function handle(data){
 		
@@ -135,46 +182,30 @@
 		
 
     try{
-  	const res = await fetch(`http://${api}:3000/notebook`)
-		console.log("Notebook:", api)
+  		const res = await fetch(`http://${api}:3000/notebook`)
 		notebook.value = await res.json()
 
 		const res2 = await fetch(`http://${api}:3000/monitor`)
-		console.log(api)
 		monitor.value = await res2.json()
+
+		const resTelevisor = await fetch(`http://${api}:3000/televisores`)
+		televisor.value = await resTelevisor.json()
+
+		const resNumero = await fetch(`http://${api}:3000/numeros`)
+		numero.value = await resNumero.json()
+		
 
     } catch(erro){
     console.log(erro)
     }
-		
-		for(const n in notebook.value){
-				result.value += parseFloat(Number(notebook.value[n].price))
-				totalnotebook.value++
-				
-				if(notebook.value[n].status){
-					notebooksfuncionando.value++
-					}
 
-				if(!notebook.value[n].status){
-					notebooksquebrados.value++
-					}
-		}
+    console.log(notebook.value[0].details)
+    console.log(details.value)
 
-		for(const n in monitor.value){
-				result2.value += parseFloat(Number(notebook.value[n].price))	
-				totalmonitor.value++			
-			
-				if(monitor.value[n].status){
-					monitoresfuncionando.value++
-					}
-
-				if(!monitor.value[n].status){
-					monitoresquebrados.value++
-					}
-		}
-
-	})
+	
 
 
+
+})		
 
 </script>

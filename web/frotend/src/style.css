@@ -18,12 +18,28 @@ body{
 }
 
 .wrapper{
-	display: flex;
-	flex-direction: column;
-	background-color: #282b30;
-	inline-size: 1200px;
+	display: grid;
+	grid-template-columns: 3fr 1fr;
+	max-width: 1800px;
+	gap: 1rem;
 	
-o}
+	
+}
+
+.section1{
+	border: 2px solid black;
+	background-color: #282b30;
+}
+
+.section2{
+	border: 2px solid black;
+	background-color: #282b30;
+	padding: 1rem;
+}
+
+.section2 h1{
+	font-size: 2rem;
+}
 
 
 .container{
@@ -43,7 +59,7 @@ o}
 }
 
 .container div {
-	flex: 1 1 calc(100% / 7);
+	flex: 1 1 calc(100% / 8);
 	text-align: center;
 	
 }

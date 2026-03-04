@@ -1,6 +1,6 @@
 import * as db from '../database/db.js'
 import fs from 'fs/promises';
-import { select, Separator, input } from '@inquirer/prompts';
+import { select, Separator, input, editor } from '@inquirer/prompts';
 
 async function showLogo() {
     try {
@@ -257,6 +257,10 @@ if(menu == 'assets'){
 				value: 'showAllNotebooks'
 			},
 			{
+				name: 'Inspect a notebook',
+				value: 'inspectNotebook'
+			},
+			{
 				name: 'Register a notebook',
 				value: 'insertNotebook'
 			},
@@ -288,7 +292,37 @@ if(menu == 'assets'){
         if(choice == 'no')
           data.status = false
 
+	data.details = await editor({message: "Insert specified details"})
         console.log(await db.insertNotebook(data));
+
+				break;
+
+			case 'inspectNotebook':
+
+				data = { }
+
+				data.inspector = await input({message: `Insert inspector name:`})
+				if(!idata.nspector)
+					throw new Error(`Inspector's name cannot be undefined`)
+				data.condition = await input(
+					{message: `Insert notebook's condition`}
+				)
+
+				if(!data.condition)
+					throw new Error(`Condition cannot be undefined`)
+
+				data.condition = Number(data.condition)
+
+				data.suitable = await input(
+					{message: `Which department this notebook is suitable for? (1 = emissão, 2 = suporte, 3 = dev):`})
+
+				if(!data.suitable)
+					throw new Error(`Suitable cannot be undefined`)
+
+				data.suitable = Number(data.suitable)
+
+				data.details = await editor({message: 'Insert the details:'})
+				await db.insertInspection(data)
 
 				break;
 

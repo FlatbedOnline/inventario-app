@@ -54,7 +54,26 @@ app.get('/monitor', async(req, res) => {
 	}
 })
 
+app.get('/televisores', async(req, res) => {
 
+	try{
+		const televisor = await db.showTelevisors()
+		res.json(televisor)
+	} catch (err) {
+		res.status(500).json({error: err.message})
+	}
+})
+
+app.get('/numeros', async(req, res) => {
+	
+	try{
+		const numero = await db.showNumeros()
+		res.json(numero)
+	}catch(err) {
+		res.status(500).json({error: err.message})
+	}
+
+})
 
 
 

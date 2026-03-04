@@ -66,7 +66,7 @@ CREATE TABLE inspection(
 	id SERIAL PRIMARY KEY,
 	inspector VARCHAR(10),
 	date_inspection DATE DEFAULT CURRENT_DATE NOT NULL,
-	condition INTEGER CHECK(BETWEEN 1 AND 10) NOT NULL, --condição do computador
+	condition INTEGER CHECK(condition BETWEEN 1 AND 10) NOT NULL, --condição do computador
 	suitable INTEGER CHECK(suitable IN (1,2,3)) NOT NULL,--para qual departamento esse computador serve. 1: emissão, 2: suporte, 3: dev
 	details TEXT,
 	notebook_id INTEGER REFERENCES notebook(id)
