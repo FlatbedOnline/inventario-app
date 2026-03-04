@@ -451,3 +451,27 @@ export async function deleteAssign(data){
 
 	return result.rows[0]
 }
+
+export async function deleteTelevisor(data){
+  let {identifier} = data
+
+  if(!identifier)
+    throw new Error('Identifier cannot be undefined')
+
+  let result = await pool.query('DELETE FROM televisor WHERE identifier=$1 RETURNING *', [identifier])
+
+  return result.rows[0]
+}
+
+export async function deleteNumber(data){
+  let {identifier} = data
+
+  if(!identifier)
+    throw new Error('Identifier cannot be undefined')
+
+  let result = await pool.query(
+    'DELETE FROM numero WHERE identifier=$1 RETURNING *', [identifier]
+  )
+
+  return result.rows[0]
+}

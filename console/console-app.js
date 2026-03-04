@@ -238,8 +238,13 @@ if(menu == 'assets'){
 	{
 		name: 'Manage TVs',
 		value: 'televisors',
-		description 'Insert, update or delete a TV.'
+		description: 'Insert, update or delete a TV.'
 	},
+    {
+      name: 'Manage numbers',
+      value: 'numbers',
+      description: 'Insert, update or delete a number.'
+    },
 	new Separator() ]
 	})
 
@@ -381,15 +386,18 @@ if(menu == 'assets'){
 	})
 		switch(choice){
 			case 'showTvs':
+        
+        await db.showTelevisors();
 
 				break;
 			case 'insertTv':
 
-				data = {identifier, model, price, status}
+				let data = {}
 
 				data.identifier = await input(
 					{message: `Create an identifier:`})
-				if(data.identifier == null)
+				
+        if(data.identifier == null)
 					throw new Error('identifier cannot be null')
 
 				data.model = await input({message: `Insert Tv's model`})
@@ -397,14 +405,116 @@ if(menu == 'assets'){
 				if(data.model == null)
 					throw new Error('Model cannot be null')
 
-				//to do terminar isso e incluir visualizar televisores e numeros + todas as coisas relacionadas
+        data.price = await input({message: `Insert a price:`})
 
+        data.status = await select({
+          message: `Select the status`,
+          choices: [
+            {
+              name: "Active",
+              value: "active"
+        
+            },
+            {
+              name: "Inactive",
+              value: "inactive"
+            }
+          ]
+        })
+
+        if(data.status == "active"){
+          data.status = true
+        }else {
+          data.status = false
+        }
+
+        db.insertTelevisor(data)
 
 				break;
 			case 'deleteTv':
 
+        let result = await input({message: "Insert identifier:"})
+        
+        db.deleteTelevisor({identifier: result})
 				break;
 		}
+
+    if(menu_assets === 'number'){
+      
+      let choice = await select({
+        message: 'Select an option',
+        choices: [
+          {
+            name: 'Show all numbers',
+            value: 'showNumbers'
+          },
+          {
+            name: 'Insert a number',
+            value: 'insertNumber'
+          },
+          {
+            name: 'Delete a number',
+            value: 'deleteNumber'
+          }
+        ]
+      })
+
+      switch(choice){
+        case 'showNumbers':
+
+          await db.showNumeros();
+
+          break;
+          case 'insertNumber':
+
+          let data = { }
+
+          data.identifier = await input({message: 'Insert an identifier:'})
+          
+          if(!data.identifier)
+            throw new Error('Identifier cannot be null')
+
+          data.phone_number = await input({message: 'Insert phone number:'})
+
+          if(!data.phone_number)
+            throw new Error('Number cannot be null')
+
+          data.owner = await input({message: `Insert owner's name:`})
+
+          if(!data.owner)
+            throw new Error('Owner cannot be null')
+
+          data.price = await input({message:'Insert a price:'})
+
+          data.status = await select({message: `Select the status`,
+          choices:
+            [{
+              name:'active',
+              value:true
+            },
+            {
+              name:'inactive',
+              value:false
+            }]
+          })
+
+          await db.insertNumber(data);
+
+          break;
+
+        case 'deleteNumber':
+          data = {}
+
+          result = await input({message: 'Insert an identifier:'})
+          if(!result)
+            throw new Error('result cannot be undefined')
+
+          await db.deleteNumber(data)
+
+          break;
+      }
+
+    }
 
 		
 
@@ -412,7 +522,7 @@ if(menu == 'assets'){
 
 	
 
-
+}
 
 	
 

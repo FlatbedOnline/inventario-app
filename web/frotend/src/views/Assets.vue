@@ -133,19 +133,19 @@
 
 	onMounted(async () => {
 		
-		console.log("teste")
-		console.log("debug", api)
 
-		const res = await fetch(`http://${api}/notebook`)
+    try{
+  	const res = await fetch(`http://${api}:3000/notebook`)
 		console.log("Notebook:", api)
 		notebook.value = await res.json()
-		console.log(notebook.value)
 
-		const res2 = await fetch(`http://${api}/monitor`)
+		const res2 = await fetch(`http://${api}:3000/monitor`)
 		console.log(api)
 		monitor.value = await res2.json()
-		console.log(monitor.value)
 
+    } catch(erro){
+    console.log(erro)
+    }
 		
 		for(const n in notebook.value){
 				result.value += parseFloat(Number(notebook.value[n].price))
