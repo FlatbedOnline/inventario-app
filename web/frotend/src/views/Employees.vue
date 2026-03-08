@@ -7,7 +7,7 @@
 
 </style>
 <template>
-	<div class="wrapper">
+  <div class="section1">
 		<div class="container" id="banner"> 
 				<div class="item">
 					Identificador
@@ -30,24 +30,28 @@
 			<div class="item">
 				{{e.department}}
 			</div>
+    </div>
 
-		</div>
-  	</div>
+	</div>
+  <div class="section2">
+    <h1>Placeholder <3</h1>
+  </div>
 </template>
 
 <script setup>
   import {onMounted, ref} from 'vue'
+  
+  const api = import.meta.env.VITE_API_URL
+
 
   const employees = ref([])
 
   onMounted(async () => { 
 
   try{
-  const res = await fetch('http://192.168.88.139:3000/employees')
+  const res = await fetch(`http://${api}:3000/employees`)
   employees.value = await res.json()
   
-  console.log(employees.value)
-
   } catch(err) {
     console.error(err.message)
   

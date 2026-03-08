@@ -187,7 +187,7 @@ export async function finishAssignment(data){
 }
 
 //INSERT INSPECTION
-async function insertInspection(data){
+export async function insertInspection(data){
 	let {
 		inspector, 
 		condition, //NOT NULL (number between 1 in 10)
@@ -195,8 +195,8 @@ async function insertInspection(data){
 		details, 
 		notebook_identifier} = data
 
-	if(!inspector || condition == 0 || suitable == 0)
-		throw new Error('inspector, condition and suitable cannot be null')
+	if(!notebook_identifier || !inspector || condition == 0 || suitable == 0)
+		throw new Error('notebook identifier, inspector, condition and suitable cannot be null')
 
 	let notebook_id = await pool.query(
 		`SELECT id FROM notebook WHERE identifier = $1`,
@@ -398,6 +398,13 @@ export async function showNumeros(){
 	let result = await pool.query('SELECT * FROM numero')
 
 	return result.rows
+}
+
+//Show all inspections
+export async function showInspections(){
+  let result = await pool.query('SELECT * FROM inspection')
+
+  return result.rows
 }
 
 /*--------------------------DELETE COMMANDS--------------------------*/

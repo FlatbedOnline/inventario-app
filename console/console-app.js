@@ -299,30 +299,34 @@ if(menu == 'assets'){
 
 			case 'inspectNotebook':
 
-				data = { }
+				let dataInspect = { }
 
-				data.inspector = await input({message: `Insert inspector name:`})
-				if(!idata.nspector)
+        dataInspect.notebook_identifier = await input({
+          message: `Insert the notebook's identifier:`
+        })
+
+				dataInspect.inspector = await input({message: `Insert inspector name:`})
+				if(!dataInspect.inspector)
 					throw new Error(`Inspector's name cannot be undefined`)
-				data.condition = await input(
+				dataInspect.condition = await input(
 					{message: `Insert notebook's condition`}
 				)
 
-				if(!data.condition)
+				if(!dataInspect.condition)
 					throw new Error(`Condition cannot be undefined`)
 
-				data.condition = Number(data.condition)
+				dataInspect.condition = Number(dataInspect.condition)
 
-				data.suitable = await input(
+				dataInspect.suitable = await input(
 					{message: `Which department this notebook is suitable for? (1 = emissão, 2 = suporte, 3 = dev):`})
 
-				if(!data.suitable)
+				if(!dataInspect.suitable)
 					throw new Error(`Suitable cannot be undefined`)
 
-				data.suitable = Number(data.suitable)
+				dataInspect.suitable = Number(dataInspect.suitable)
 
-				data.details = await editor({message: 'Insert the details:'})
-				await db.insertInspection(data)
+				dataInspect.details = await editor({message: 'Insert the details:'})
+				await db.insertInspection(dataInspect)
 
 				break;
 

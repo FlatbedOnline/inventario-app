@@ -75,6 +75,16 @@ app.get('/numeros', async(req, res) => {
 
 })
 
+app.get('/inspection', async(req, res) => {
+  try{
+    const inspect = await db.showInspections()
+    res.json(inspect)
+  }catch(err) {
+    res.status(500).json({error: err.message})
+  }
+
+})
+
 
 
 app.listen(3000, '0.0.0.0', () => console.log(`Server running on http://${process.env.ADDRESS_USER}:3000`))

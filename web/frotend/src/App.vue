@@ -8,13 +8,16 @@
 <template>
 <Nav/>
 	<main>
+    <div class="wrapper">
   <router-view></router-view>
+    </div>
 	</main>
 </template>
 
 <style scoped>
 	main{
-		width: 100vw;
-		height: 100vh;
+    display: flex;
+    justify-content: center;
+    max-width: 1800px;
 	}
 </style>

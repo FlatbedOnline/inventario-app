@@ -36,11 +36,10 @@
 
 	.funcionando{
 		color: #8CE03A;
-	}
+  }
 </style>
 
 <template>
-<div class="wrapper">
 	<div class="section1">
 	<nav class="ContentSelection"> 
 		<button @click="handle('notebook')">Notebooks</button> 
@@ -57,6 +56,7 @@
 			<div>Serial Number</div>
 			<div>Status</div>
 			<div>Preço unitário</div>
+      <div>Inspeções</div>
 			<div> ... </div>
 		</div>
 	
@@ -67,7 +67,8 @@
 		<div v-if="n.status" class="funcionando">Funcionando</div>
 		<div v-if="!n.status" class="quebrado">Quebrado</div>
 		<div class="price">{{n.price}}R$</div>
-		<div @click="details = n.details; console.log(details)"><a>More...</a></div>
+    <div @click="detalhes = 'inspection'">Inspeções</div>
+		<div @click="details = n.details; detalhes = 'details'"><a>More...</a></div>
 	</div>
 
 	<div class="container">
@@ -112,22 +113,19 @@
 		<div v-if ="button == 'numero'" class="container">placeholder para numeros.</div>
 	</div>
 
-	<div class="section2">
-		<h1>Detalhes:</h1>
-		<section>
-			<div id="details">
-				<p>{{details}}</p>
-			</div>
-		</section>
-		<h1>Avaliações:</h1>
-		<section>
-			<div>	
-				<p>Condição: Sem avaliações recentes.</p>
-				<p>Departamento ideal: Sem avaliações recentes.</p>
-			</div>
-		</section>
+	<div v-if="detalhes === 'details'" class="section2">
+
+    <div>
+		  <h1>Detalhes:</h1>
+		  <section>
+			  <div id="details">
+				  <p>{{details}}</p>
+			  </div>
+		  </section>
+    </div>
 	</div>
-</div>
+
+
 </template>
 
 
@@ -135,11 +133,12 @@
 	import {onMounted, ref, computed} from 'vue'
 
 	const api = import.meta.env.VITE_API_URL
-	const notebook = ref([])
-	const monitor = ref([])
-	const televisor = ref([])
-	const numero = ref([])
-	const details = ref()
+
+	const notebook = ref([]), monitor = ref([]), televisor = ref([]), numero = ref([]) //Asset itens.
+  const inspect = ref([])
+	
+  const details = ref()
+  const detalhes = ref()
 	
 	const stats = computed(() => ({
 		not: Loop(notebook.value),
@@ -180,31 +179,26 @@
 
 	onMounted(async () => {
 		
-
     try{
-  		const res = await fetch(`http://${api}:3000/notebook`)
-		notebook.value = await res.json()
+  	
+    ;[notebook.value, monitor.value, televisor.value, numero.value, inspect.value] = await Promise.all([
 
-		const res2 = await fetch(`http://${api}:3000/monitor`)
-		monitor.value = await res2.json()
-
-		const resTelevisor = await fetch(`http://${api}:3000/televisores`)
-		televisor.value = await resTelevisor.json()
-
-		const resNumero = await fetch(`http://${api}:3000/numeros`)
-		numero.value = await resNumero.json()
-		
-
-    } catch(erro){
-    console.log(erro)
+      fetch(`http://${api}:3000/notebook`).then((res) => res.json()),
+      fetch(`http://${api}:3000/monitor`).then((res) => res.json()),
+      fetch(`http://${api}:3000/televisores`).then((res) => res.json()),
+      fetch(`http://${api}:3000/numeros`).then((res) => res.json()),
+      fetch(`http://${api}:3000/inspection`).then((res) => res.json()),
+      
+      
+      //I know I'm not handling http errors but this code is so frickin' clean that I don't want to extend its lines @-@ 
+      //TO DO: Create error handling in these fetches if necessary. 
+    ])
+    } catch(err){
+        
+        console.log(err)
     }
 
-    console.log(notebook.value[0].details)
-    console.log(details.value)
-
-	
-
-
+    console.log(inspect.value)
 
 })		
 
