@@ -67,7 +67,7 @@
 		<div v-if="n.status" class="funcionando">Funcionando</div>
 		<div v-if="!n.status" class="quebrado">Quebrado</div>
 		<div class="price">{{n.price}}R$</div>
-    <div @click="detalhes = 'inspection'">Inspeções</div>
+    <div @click="detalhes = 'inspection'; validator = search(n.id) ">Inspeções</div>
 		<div @click="details = n.details; detalhes = 'details'"><a>More...</a></div>
 	</div>
 
@@ -113,24 +113,36 @@
 		<div v-if ="button == 'numero'" class="container">placeholder para numeros.</div>
 	</div>
 
-	<div v-if="detalhes === 'details'" class="section2">
 
-    <div>
+    <div v-if="detalhes==='details'" class="section2">
 		  <h1>Detalhes:</h1>
 		  <section>
-			  <div id="details">
+			  <div>
 				  <p>{{details}}</p>
 			  </div>
 		  </section>
     </div>
-	</div>
+
+    <div v-if="detalhes==='inspection'" class="section2">
+      <div>
+        <h1>Inspeções</h1>
+        <section>
+          <p>{{formatDate(validator.date_inspection)}} - {{validator.inspector}}</p>
+          <p>Estrutura: {{validator.condition}} - Recomendação: {{validator.suitable}}</p>
+          <p>{{validator.details}}</p>
+        </section>
+      </div>
+    </div>
+
+
 
 
 </template>
 
 
 <script setup>
-	import {onMounted, ref, computed} from 'vue'
+	import {onMounted, ref, computed, reactive} from 'vue'
+  import dayjs from 'dayjs'
 
 	const api = import.meta.env.VITE_API_URL
 
@@ -139,6 +151,10 @@
 	
   const details = ref()
   const detalhes = ref()
+
+  const validator = ref()
+
+  const inspection = reactive([])
 	
 	const stats = computed(() => ({
 		not: Loop(notebook.value),
@@ -147,6 +163,14 @@
 	}))
 	
 	const button = ref()
+
+  function search(notebook){
+
+    let result = inspection.find(i => i.notebook_id == notebook)
+    
+    console.log(result)
+   return result
+  }
 
 	function Loop(res){
 
@@ -171,6 +195,11 @@
 	return metadata
 } 
 
+	function formatDate(date){ 
+		return dayjs(date).format('DD/MM/YYYY') 
+		}
+
+
 	
 	function handle(data){
 		
@@ -181,24 +210,28 @@
 		
     try{
   	
-    ;[notebook.value, monitor.value, televisor.value, numero.value, inspect.value] = await Promise.all([
+    ;[notebook.value, monitor.value, televisor.value, numero.value] = await Promise.all([
 
       fetch(`http://${api}:3000/notebook`).then((res) => res.json()),
       fetch(`http://${api}:3000/monitor`).then((res) => res.json()),
       fetch(`http://${api}:3000/televisores`).then((res) => res.json()),
       fetch(`http://${api}:3000/numeros`).then((res) => res.json()),
-      fetch(`http://${api}:3000/inspection`).then((res) => res.json()),
       
       
       //I know I'm not handling http errors but this code is so frickin' clean that I don't want to extend its lines @-@ 
       //TO DO: Create error handling in these fetches if necessary. 
     ])
+
+    const res = await fetch(`http://${api}:3000/inspection`).then((res) => res.json())
+    inspection.push(...res)
+
     } catch(err){
         
         console.log(err)
     }
 
-    console.log(inspect.value)
+    console.log(inspection)
+    console.log(notebook.value)
 
 })		
 

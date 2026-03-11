@@ -18,7 +18,7 @@
 nav{
   display: flex;
   align-items: center;
-  min-height: 5rem;
+  min-height: 3rem;
   background-color: #7289DA;
   font-size: 1.5rem;
   box-shadow: inset 0 0 10px rgba(0,0,0,0.5);

@@ -34,7 +34,7 @@
 
 	</div>
   <div class="section2">
-    <h1>Placeholder <3</h1>
+    <h1>Placeholder</h1>
   </div>
 </template>
 

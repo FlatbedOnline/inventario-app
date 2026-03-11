@@ -73,7 +73,7 @@
   </div> 
 
   <div class="section2">
-        <h1>Placeholder @-@</h1> 
+        <h1>Placeholder</h1> 
   </div>
 
 </template>
