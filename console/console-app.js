@@ -222,31 +222,34 @@ if(menu == 'department'){
 }
 
 //assets handle
-if(menu == 'assets'){
-	const menu_assets = await select({
-	message: 'Choose an option',
-	choices: [{
-		name: 'Manage notebooks',
-		value: 'notebooks',
-		description: 'Insert, update and delete notebooks.'
-	},
-	{
-		name: 'Manage monitors',
-		value: 'monitors',
-		description: 'Insert, update and delete monitors.'
-	},
-	{
-		name: 'Manage TVs',
-		value: 'televisors',
-		description: 'Insert, update or delete a TV.'
-	},
-    {
-      name: 'Manage numbers',
-      value: 'numbers',
-      description: 'Insert, update or delete a number.'
-    },
-	new Separator() ]
-	})
+try {
+	if(menu == 'assets'){
+		const menu_assets = await select({
+		message: 'Choose an option',
+		choices: [{
+			name: 'Manage notebooks',
+			value: 'notebooks',
+			description: 'Insert, update and delete notebooks.'
+		},
+		{
+			name: 'Manage monitors',
+			value: 'monitors',
+			description: 'Insert, update and delete monitors.'
+		},
+		{
+			name: 'Manage TVs',
+			value: 'televisors',
+			description: 'Insert, update or delete a TV.'
+		},
+    		{
+      			name: 'Manage numbers',
+      			value: 'numbers',
+      			description: 'Insert, update or delete a number.'
+    		},
+		new Separator() ]
+		})
+	}
+
 
 	//Notebooks handle
 	if(menu_assets == 'notebooks'){
@@ -384,8 +387,11 @@ if(menu == 'assets'){
             {name: 'broke', value:false}
           ] });
 
-        if(!choice)
+        if(!choice){
           data.status = false;
+	} else {
+		data.status = true;
+	}
 
         console.log(await db.insertMonitor(data));
 
@@ -402,7 +408,7 @@ if(menu == 'assets'){
 	}
 
 	//televisor handle
-	if(menu_assets === 'televisors'){
+	if(menu_assets == 'televisors'){
 		let choice = await select({
 			message: `Insert an option:`,
 			choices: 
@@ -477,7 +483,7 @@ if(menu == 'assets'){
 				break;
 		}
 
-    if(menu_assets === 'number'){
+    if(menu_assets == 'numbers'){
       
       let choice = await select({
         message: 'Select an option',
@@ -536,7 +542,7 @@ if(menu == 'assets'){
             }]
           })
 
-          await db.insertNumber(data);
+          await db.insertNumero(data);
 
           break;
 
@@ -560,8 +566,9 @@ if(menu == 'assets'){
 
 	
 
+} catch (err) {
+	console.log(err.message)
 }
-
 	
 
 

@@ -7,9 +7,7 @@ import dotenv from 'dotenv'
 const app = express();
 app.use(express.json());
 
-app.use(cors({
-	origin: `http://${process.env.ADDRESS_USER}:5173`
-}));
+app.use(cors());
 
 app.get('/employees', async (req, res) => {
   try {

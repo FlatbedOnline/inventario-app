@@ -16,6 +16,25 @@ const pool = new Pool({
 /*------------------------------ INSERT COMMANDS ----------------------------*/
 
 //INSERT NOTEBOOK
+
+export async function insertNumero(data){
+	let {
+		identifier,
+		phone_number,
+		owner,
+		price,
+		status
+	} = data
+	
+	if(!identifier || !serial_number || !owner)
+		throw new Error('Identifier, phone number and owner cannot be null.')
+
+	let result = await pool.query(
+		"INSERT INTO numero (identifier, phone_number, owner, price, status VALUES ($1, $2, $3, $4, $5) RETURNING *", [identifier, phone_number, owner, price, status])
+
+	return result.rows[0]
+}
+
 export async function insertNotebook(data){
 	let {
 		identifier,
@@ -222,8 +241,8 @@ export async function insertInspection(data){
 
 }
 
-//INSERT NUMBER
-export async function insertNumero(data){
+//INSERT NUMBER | Caso a outra função pegue, retire esta. To Do
+export async function insertNum(data){
 	let {
 		phone_number,
 		identifier,

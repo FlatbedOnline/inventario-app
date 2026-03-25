@@ -8,6 +8,9 @@
 		background-color: black;
 		block-size: 3rem;
 	}
+	.section2{
+		white-space: pre-wrap;
+	}
 
 	nav button{
 		color: white;
@@ -67,7 +70,7 @@
 		<div v-if="n.status" class="funcionando">Funcionando</div>
 		<div v-if="!n.status" class="quebrado">Quebrado</div>
 		<div class="price">{{n.price}}R$</div>
-    <div @click="detalhes = 'inspection'; validator = search(n.id) ">Inspeções</div>
+		<div @click="detalhes = 'inspection'; validator = search(n.id)"><a>Inspeções</a></div>
 		<div @click="details = n.details; detalhes = 'details'"><a>More...</a></div>
 	</div>
 
